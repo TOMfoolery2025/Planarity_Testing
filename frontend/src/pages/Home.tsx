@@ -14,6 +14,12 @@ interface Result {
         k33_count?: number
         execution_time?: number
         result_source?: 'Compute' | 'Cache'
+        biconnected_components?: number
+        biconnected_subgraphs?: Array<{
+            id: number
+            nodes: Array<{ id: number | string; x: number; y: number; label: string }>
+            edges: Array<{ source: number | string; target: number | string; is_conflict: boolean }>
+        }>
     }
     message?: string
 }
@@ -398,6 +404,11 @@ const Home: React.FC = () => {
                                             )}
                                             <div style={{ fontSize: '0.8em', color: 'var(--text-tertiary)', marginTop: '4px' }}>
                                                 Time: {results[activeTab]?.data?.execution_time?.toFixed(4)}s | Source: {results[activeTab]?.data?.result_source || 'Unknown'}
+                                                {results[activeTab]?.data?.biconnected_components !== undefined && (
+                                                    <span style={{ marginLeft: '10px', color: 'var(--text-secondary)' }}>
+                                                        | Biconnected Components: {results[activeTab]?.data?.biconnected_components}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <button
@@ -439,6 +450,46 @@ const Home: React.FC = () => {
                                             edges={results[activeTab]?.data?.edges || []}
                                         />
                                     </div>
+
+                                    {/* Biconnected Components Gallery */}
+                                    {results[activeTab]?.data?.biconnected_subgraphs && results[activeTab]!.data!.biconnected_subgraphs!.length > 0 && (
+                                        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px' }}>
+                                            <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>
+                                                Biconnected Components ({results[activeTab]?.data?.biconnected_components})
+                                            </h3>
+                                            <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
+                                                {results[activeTab]!.data!.biconnected_subgraphs!.map((subgraph) => (
+                                                    <div key={subgraph.id} style={{
+                                                        minWidth: '200px',
+                                                        height: '150px',
+                                                        background: 'rgba(0,0,0,0.2)',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid rgba(255,255,255,0.05)',
+                                                        position: 'relative'
+                                                    }}>
+                                                        <GraphViz
+                                                            nodes={subgraph.nodes}
+                                                            edges={subgraph.edges}
+                                                            width={200}
+                                                            height={150}
+                                                        />
+                                                        <div style={{
+                                                            position: 'absolute',
+                                                            bottom: 5,
+                                                            right: 5,
+                                                            fontSize: '0.7em',
+                                                            color: 'var(--text-tertiary)',
+                                                            background: 'rgba(0,0,0,0.5)',
+                                                            padding: '2px 4px',
+                                                            borderRadius: '4px'
+                                                        }}>
+                                                            #{subgraph.id + 1}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="result-content">
