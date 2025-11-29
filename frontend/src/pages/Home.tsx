@@ -149,7 +149,7 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className="page-container" style={{ maxWidth: '100%', padding: 0, overflow: 'hidden' }}>
+        <div className="page-container" style={{ maxWidth: '100%', padding: 0, overflowY: 'auto', overflowX: 'hidden' }}>
             {/* Hero Section */}
             <section style={{
                 height: '90vh',
@@ -284,11 +284,7 @@ const Home: React.FC = () => {
                                         <span className={`status-badge ${results[activeTab]?.data?.is_planar ? 'status-planar' : 'status-non-planar'}`}>
                                             {results[activeTab]?.data?.is_planar ? 'PLANAR' : 'NON-PLANAR'}
                                         </span>
-                                        {!results[activeTab]?.data?.is_planar && (
-                                            <span style={{ marginLeft: '10px', color: 'var(--text-secondary)', fontSize: '0.9em' }}>
-                                                (K5: {results[activeTab]?.data?.k5_count}, K3,3: {results[activeTab]?.data?.k33_count})
-                                            </span>
-                                        )}
+
                                     </div>
                                     <button
                                         className="btn-secondary"
