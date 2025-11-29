@@ -113,6 +113,14 @@ async def process_batch(inputs: List[str] = Body(...)):
         duration = time.time() - start_time
         logger.info(f"Graph {index}: {winner} won in {duration:.4f}s")
         
+        if res and isinstance(res, dict):
+            if "data" in res and isinstance(res["data"], dict):
+                res["data"]["execution_time"] = duration
+                res["data"]["result_source"] = winner
+            else:
+                res["execution_time"] = duration
+                res["result_source"] = winner
+
         return json.dumps({"index": index, "result": res}) + "\n"
 
     async def result_generator():

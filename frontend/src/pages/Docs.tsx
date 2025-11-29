@@ -18,69 +18,31 @@ const Docs = () => {
             <nav className="doc-sidebar">
                 <div className="doc-nav-group">
                     <h3>Guide</h3>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'overview' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('overview')}
-                    >
-                        Overview
-                    </a>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'architecture' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('architecture')}
-                    >
-                        Architecture
-                    </a>
+                    <a className={`doc-nav-item ${activeSection === 'overview' ? 'active' : ''}`} onClick={() => scrollToSection('overview')}>Overview</a>
+                    <a className={`doc-nav-item ${activeSection === 'architecture' ? 'active' : ''}`} onClick={() => scrollToSection('architecture')}>System Architecture</a>
+                    <a className={`doc-nav-item ${activeSection === 'sequence' ? 'active' : ''}`} onClick={() => scrollToSection('sequence')}>Request Sequence</a>
                 </div>
                 <div className="doc-nav-group">
-                    <h3>Algorithms</h3>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'boyer-myrvold' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('boyer-myrvold')}
-                    >
-                        Boyer-Myrvold
-                    </a>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'drawing' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('drawing')}
-                    >
-                        Graph Drawing
-                    </a>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'kuratowski' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('kuratowski')}
-                    >
-                        Kuratowski Subgraphs
-                    </a>
+                    <h3>Workflows</h3>
+                    <a className={`doc-nav-item ${activeSection === 'planarity-workflow' ? 'active' : ''}`} onClick={() => scrollToSection('planarity-workflow')}>Planarity Testing</a>
+                    <a className={`doc-nav-item ${activeSection === 'drug-workflow' ? 'active' : ''}`} onClick={() => scrollToSection('drug-workflow')}>Drug Discovery</a>
                 </div>
                 <div className="doc-nav-group">
-                    <h3>Resources</h3>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'tech-stack' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('tech-stack')}
-                    >
-                        Tech Stack
-                    </a>
-                    <a
-                        className={`doc-nav-item ${activeSection === 'references' ? 'active' : ''}`}
-                        onClick={() => scrollToSection('references')}
-                    >
-                        References
-                    </a>
+                    <h3>Reference</h3>
+                    <a className={`doc-nav-item ${activeSection === 'files' ? 'active' : ''}`} onClick={() => scrollToSection('files')}>Key Files</a>
+                    <a className={`doc-nav-item ${activeSection === 'formats' ? 'active' : ''}`} onClick={() => scrollToSection('formats')}>File Formats</a>
                 </div>
             </nav>
 
             {/* Main Content */}
             <main className="doc-content">
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+
                     {/* Overview */}
                     <section id="overview" className="api-header-section">
                         <h1 className="api-title">Documentation</h1>
                         <p className="api-description">
-                            Deep dive into the algorithms, architecture, and libraries that power the Planarity Testing engine.
+                            Detailed technical guide for the Planarity Testing & Drug Discovery Platform.
                         </p>
                     </section>
 
@@ -88,146 +50,215 @@ const Docs = () => {
                     <section id="architecture" className="endpoint-card">
                         <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>System Architecture</h2>
                         <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            The application is built for performance and responsiveness, utilizing a parallel processing pipeline that races cache lookups against fresh computations.
+                            The system uses a <strong>Race-to-Result</strong> pattern to ensure low latency.
                         </p>
 
-                        <div className="card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)' }}>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', color: 'var(--accent-primary)' }}>Parallel Cache Race</h3>
-                            <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
-                                For every graph submitted, the backend spawns two concurrent asynchronous tasks:
-                            </p>
-                            <ol style={{ paddingLeft: '20px', color: 'var(--text-secondary)', margin: '10px 0' }}>
-                                <li style={{ marginBottom: '8px' }}>
-                                    <strong>Cache Lookup:</strong> Checks a SHA-256 hash-keyed in-memory store for previous results.
+                        <div className="diagram-container" style={{ padding: '30px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', textAlign: 'center' }}>
+                                <div style={{ padding: '20px', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
+                                    <h3 style={{ color: 'var(--accent-primary)' }}>Frontend</h3>
+                                    <p style={{ fontSize: '0.9em', color: '#aaa' }}>React + Vite</p>
+                                    <div style={{ marginTop: '10px', fontSize: '0.8em', textAlign: 'left' }}>
+                                        - <code>Home.tsx</code>: Graph UI<br />
+                                        - <code>DrugDiscovery.tsx</code>: Chat UI<br />
+                                        - <code>MoleculeViewer.tsx</code>: 3D View
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <div style={{ height: '2px', width: '100%', background: 'var(--text-tertiary)', position: 'relative' }}>
+                                        <span style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', fontSize: '0.8em' }}>HTTP / JSON</span>
+                                    </div>
+                                </div>
+                                <div style={{ padding: '20px', border: '1px solid #2ecc71', borderRadius: '8px' }}>
+                                    <h3 style={{ color: '#2ecc71' }}>Backend</h3>
+                                    <p style={{ fontSize: '0.9em', color: '#aaa' }}>FastAPI + Python</p>
+                                    <div style={{ marginTop: '10px', fontSize: '0.8em', textAlign: 'left' }}>
+                                        - <code>main.py</code>: API Router<br />
+                                        - <code>worker.py</code>: CPU Tasks<br />
+                                        - <code>drug_discovery.py</code>: RDKit
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Sequence Diagram */}
+                    <section id="sequence" className="endpoint-card">
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Request Sequence Diagram</h2>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                            Visualizing the parallel execution flow for a graph analysis request.
+                        </p>
+
+                        <div className="sequence-diagram" style={{ position: 'relative', padding: '40px 20px', background: '#1e1e1e', borderRadius: '8px', overflowX: 'auto' }}>
+                            {/* Actors */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', minWidth: '600px' }}>
+                                <div style={{ width: '100px', textAlign: 'center', fontWeight: 'bold' }}>User</div>
+                                <div style={{ width: '100px', textAlign: 'center', fontWeight: 'bold' }}>Backend</div>
+                                <div style={{ width: '100px', textAlign: 'center', fontWeight: 'bold' }}>Cache</div>
+                                <div style={{ width: '100px', textAlign: 'center', fontWeight: 'bold' }}>Worker</div>
+                            </div>
+
+                            {/* Lifelines */}
+                            <div style={{ position: 'absolute', top: '70px', bottom: '20px', left: '70px', width: '2px', background: '#444' }}></div>
+                            <div style={{ position: 'absolute', top: '70px', bottom: '20px', left: 'calc(25% + 35px)', width: '2px', background: '#444' }}></div>
+                            <div style={{ position: 'absolute', top: '70px', bottom: '20px', left: 'calc(50% + 35px)', width: '2px', background: '#444' }}></div>
+                            <div style={{ position: 'absolute', top: '70px', bottom: '20px', left: 'calc(75% + 35px)', width: '2px', background: '#444' }}></div>
+
+                            {/* Messages */}
+                            <div style={{ position: 'relative', minWidth: '600px', height: '300px' }}>
+                                {/* 1. Request */}
+                                <div style={{ position: 'absolute', top: '0', left: '70px', width: '25%', borderTop: '2px solid var(--accent-primary)' }}></div>
+                                <div style={{ position: 'absolute', top: '-10px', left: '12%', fontSize: '0.8em' }}>POST /process-batch</div>
+
+                                {/* 2. Fork */}
+                                <div style={{ position: 'absolute', top: '40px', left: 'calc(25% + 35px)', width: '25%', borderTop: '2px dashed #aaa' }}></div>
+                                <div style={{ position: 'absolute', top: '30px', left: '37%', fontSize: '0.8em' }}>Check Cache (Async)</div>
+
+                                <div style={{ position: 'absolute', top: '60px', left: 'calc(25% + 35px)', width: '50%', borderTop: '2px solid #aaa' }}></div>
+                                <div style={{ position: 'absolute', top: '50px', left: '50%', fontSize: '0.8em' }}>Submit Task (ProcessPool)</div>
+
+                                {/* 3. Race */}
+                                <div style={{ position: 'absolute', top: '100px', left: 'calc(25% + 35px)', right: '0', textAlign: 'center', color: '#e74c3c', fontSize: '0.9em', fontWeight: 'bold' }}>
+                                    RACE: First Completed Wins
+                                </div>
+
+                                {/* 4. Return */}
+                                <div style={{ position: 'absolute', top: '150px', left: 'calc(50% + 35px)', width: '25%', borderTop: '2px dashed #2ecc71' }}></div>
+                                <div style={{ position: 'absolute', top: '140px', left: '37%', fontSize: '0.8em', color: '#2ecc71' }}>Result Found (Hit)</div>
+
+                                <div style={{ position: 'absolute', top: '200px', left: '70px', width: '25%', borderTop: '2px solid var(--accent-primary)' }}></div>
+                                <div style={{ position: 'absolute', top: '190px', left: '12%', fontSize: '0.8em' }}>Return JSON</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Planarity Workflow */}
+                    <section id="planarity-workflow" className="endpoint-card">
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Workflow: Planarity Testing</h2>
+                        <div className="card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <ol style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>Upload</strong> (<code>Home.tsx</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>User drags a JSON file. <code>FileUploader</code> parses it into an edge list string.</span>
+                                </li>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>API Call</strong> (<code>main.py</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}><code>POST /process-batch</code> receives <code>List[str]</code>. It creates a SHA256 hash for each graph.</span>
+                                </li>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>Execution</strong> (<code>worker.py</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}><code>process_graph_task</code> parses the string into a NetworkX graph. It calls <code>nx.check_planarity(G)</code>.</span>
+                                </li>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>Algorithm</strong> (<code>networkx</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>Runs <strong>Boyer-Myrvold</strong>. If non-planar, it extracts the Kuratowski subgraph (K5 or K3,3).</span>
                                 </li>
                                 <li>
-                                    <strong>Compute Task:</strong> Offloads the heavy graph analysis to a <code>ProcessPoolExecutor</code> to avoid blocking the main event loop.
+                                    <strong>Response</strong>:
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>JSON containing <code>is_planar</code>, <code>nodes</code>, <code>edges</code>, and <code>execution_time</code> is streamed back.</span>
                                 </li>
                             </ol>
-                            <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-secondary)', marginTop: '10px' }}>
-                                The system uses <code>asyncio.wait(FIRST_COMPLETED)</code> to return the result from whichever task finishes first, ensuring minimal latency.
-                            </p>
                         </div>
                     </section>
 
-                    {/* Boyer-Myrvold */}
-                    <section id="boyer-myrvold" className="endpoint-card">
-                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Boyer-Myrvold Algorithm</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            We utilize the <strong>Boyer-Myrvold algorithm</strong> for planarity testing. This is a state-of-the-art algorithm that operates in linear time <code>O(n)</code>, where <code>n</code> is the number of vertices. Unlike the Hopcroft-Tarjan algorithm, Boyer-Myrvold does not require a complex embedding phase and can directly isolate Kuratowski subgraphs.
-                        </p>
-
-                        <div className="code-preview">
-                            <div className="code-preview-header">
-                                <span>Python Implementation</span>
-                                <span>networkx</span>
-                            </div>
-                            <pre>{`import networkx as nx
-
-def check_planarity(G):
-    is_planar, certificate = nx.check_planarity(G)
-    if is_planar:
-        return True, nx.combinatorial_embedding_to_pos(certificate)
-    else:
-        return False, certificate # Contains Kuratowski subgraph`}</pre>
+                    {/* Drug Discovery Workflow */}
+                    <section id="drug-workflow" className="endpoint-card">
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Workflow: Drug Discovery</h2>
+                        <div className="card" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                            <ol style={{ paddingLeft: '20px', lineHeight: '1.8' }}>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>Input</strong> (<code>DrugDiscovery.tsx</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>User enters SMILES (e.g., <code>CC(=O)OC1=CC=CC=C1C(=O)O</code>).</span>
+                                </li>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>Analysis</strong> (<code>drug_discovery.py</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>
+                                        - <code>Chem.MolFromSmiles</code>: Parses molecule.<br />
+                                        - <code>Descriptors</code>: Calculates MW, LogP, TPSA.<br />
+                                        - <code>AllChem.EmbedMolecule</code>: Generates 3D coordinates.
+                                    </span>
+                                </li>
+                                <li style={{ marginBottom: '15px' }}>
+                                    <strong>AI Insight</strong> (<code>main.py</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>
+                                        Constructs a prompt with the calculated properties and sends it to <strong>Gemini 2.0 Flash</strong>.
+                                    </span>
+                                </li>
+                                <li>
+                                    <strong>Visualization</strong> (<code>MoleculeViewer.tsx</code>):
+                                    <br /><span style={{ color: '#aaa', fontSize: '0.9em' }}>
+                                        Receives 3D atoms/bonds. Renders them using <code>@react-three/fiber</code> (Three.js).
+                                    </span>
+                                </li>
+                            </ol>
                         </div>
                     </section>
 
-                    {/* Graph Drawing */}
-                    <section id="drawing" className="endpoint-card">
-                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Graph Drawing Algorithms</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            Visualizing graphs effectively requires placing nodes in a way that minimizes edge crossings and reveals symmetries. We employ two primary strategies:
-                        </p>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                            <div className="card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)' }}>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', color: 'var(--accent-primary)' }}>Force-Directed Layout</h3>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                    Used for <strong>non-planar</strong> graphs and 3D visualizations. Based on the <strong>Fruchterman-Reingold</strong> algorithm, it simulates nodes as charged particles that repel each other and edges as springs that attract connected nodes.
-                                </p>
-                            </div>
-                            <div className="card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)' }}>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '10px', color: 'var(--accent-primary)' }}>Combinatorial Embedding</h3>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                    Used for <strong>planar</strong> graphs. This deterministic layout ensures that no edges cross by utilizing the planar embedding found by the Boyer-Myrvold algorithm.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Kuratowski */}
-                    <section id="kuratowski" className="endpoint-card">
-                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Kuratowski Subgraphs</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            According to Kuratowski's theorem, a finite graph is planar if and only if it does not contain a subgraph that is a subdivision of <strong>K<sub>5</sub></strong> (complete graph on 5 vertices) or <strong>K<sub>3,3</sub></strong> (complete bipartite graph on 3+3 vertices).
-                        </p>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                            When a graph is determined to be non-planar, our engine extracts these specific subgraphs to provide a "certificate" of non-planarity, which is then highlighted in the UI.
-                        </p>
-                    </section>
-
-                    {/* Tech Stack */}
-                    <section id="tech-stack" className="endpoint-card">
-                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Libraries & Tools</h2>
+                    {/* Key Files */}
+                    <section id="files" className="endpoint-card">
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Key Files & Libraries</h2>
                         <table className="param-table">
                             <thead>
-                                <tr>
-                                    <th>Library</th>
-                                    <th>Purpose</th>
-                                </tr>
+                                <tr><th>File / Library</th><th>Description</th></tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>
-                                        <span className="param-name">NetworkX</span>
-                                    </td>
-                                    <td className="param-desc">
-                                        Core graph data structures and algorithms (Boyer-Myrvold, Spring Layout).
-                                    </td>
+                                    <td><code>backend/main.py</code></td>
+                                    <td>FastAPI entry point. Handles routing, concurrency (asyncio), and caching logic.</td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        <span className="param-name">RDKit</span>
-                                    </td>
-                                    <td className="param-desc">
-                                        Cheminformatics library used to parse SMILES strings into graph structures for molecular analysis.
-                                    </td>
+                                    <td><code>backend/app/worker.py</code></td>
+                                    <td>Contains CPU-bound tasks (graph processing) run by <code>ProcessPoolExecutor</code>.</td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        <span className="param-name">FastAPI</span>
-                                    </td>
-                                    <td className="param-desc">
-                                        High-performance async web framework for the backend API and streaming responses.
-                                    </td>
+                                    <td><code>backend/app/drug_discovery.py</code></td>
+                                    <td>RDKit integration for molecular analysis and Gemini API prompting.</td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        <span className="param-name">React Force Graph</span>
-                                    </td>
-                                    <td className="param-desc">
-                                        Frontend library for 2D and 3D force-directed graph rendering using Three.js and D3.
-                                    </td>
+                                    <td><code>networkx</code></td>
+                                    <td>Python library used for the Boyer-Myrvold planarity test.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>rdkit</code></td>
+                                    <td>Cheminformatics library for parsing SMILES and generating 3D structures.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>google-generativeai</code></td>
+                                    <td>Client for accessing Google's Gemini models.</td>
                                 </tr>
                             </tbody>
                         </table>
                     </section>
 
-                    {/* References */}
-                    <section id="references" className="endpoint-card">
-                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>References</h2>
-                        <ul style={{ listStyle: 'none', padding: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-                            <li style={{ marginBottom: '15px', paddingLeft: '15px', borderLeft: '2px solid var(--accent-primary)' }}>
-                                <strong>[1] J. M. Boyer and W. J. Myrvold</strong>, "On the Cutting Edge: Simplified O(n) Planarity by Edge Addition," <em>Journal of Graph Algorithms and Applications</em>, vol. 8, no. 3, pp. 241-273, 2004.
-                            </li>
-                            <li style={{ marginBottom: '15px', paddingLeft: '15px', borderLeft: '2px solid var(--accent-primary)' }}>
-                                <strong>[2] T. M. J. Fruchterman and E. M. Reingold</strong>, "Graph Drawing by Force-directed Placement," <em>Software: Practice and Experience</em>, vol. 21, no. 11, pp. 1129-1164, 1991.
-                            </li>
-                            <li style={{ marginBottom: '15px', paddingLeft: '15px', borderLeft: '2px solid var(--accent-primary)' }}>
-                                <strong>[3] K. Kuratowski</strong>, "Sur le problème des courbes gauches en topologie," <em>Fundamenta Mathematicae</em>, vol. 15, pp. 271-283, 1930.
-                            </li>
-                        </ul>
+                    {/* File Formats */}
+                    <section id="formats" className="endpoint-card">
+                        <h2 style={{ fontSize: '1.8rem', marginBottom: '15px' }}>Acceptable File Formats</h2>
+
+                        <h3 style={{ fontSize: '1.1rem', marginTop: '20px', color: 'var(--accent-primary)' }}>1. Graph Upload (JSON)</h3>
+                        <div className="code-preview">
+                            <pre>{`[
+  "0 1\\n1 2\\n2 0",           // Edge List String
+  {
+    "edges": [[0, 1], [1, 2]] // Object with edges array
+  }
+]`}</pre>
+                        </div>
+
+                        <h3 style={{ fontSize: '1.1rem', marginTop: '20px', color: 'var(--accent-primary)' }}>2. Graph Upload (TXT/CSV)</h3>
+                        <div className="code-preview">
+                            <pre>{`0 1
+1 2
+2 0
+3 4`}</pre>
+                        </div>
+
+                        <h3 style={{ fontSize: '1.1rem', marginTop: '20px', color: 'var(--accent-primary)' }}>3. Drug Discovery (JSON)</h3>
+                        <div className="code-preview">
+                            <pre>{`[
+  "CC(=O)OC1=CC=CC=C1C(=O)O",  // Aspirin
+  "CN1C=NC2=C1C(=O)N(C(=O)N2C)C" // Caffeine
+]`}</pre>
+                        </div>
                     </section>
 
                 </motion.div>

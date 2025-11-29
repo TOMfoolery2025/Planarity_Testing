@@ -11,6 +11,8 @@ interface Result {
         edges: Array<{ source: number | string; target: number | string; is_conflict: boolean }>
         k5_count?: number
         k33_count?: number
+        execution_time?: number
+        result_source?: 'Compute' | 'Cache'
     }
     message?: string
 }
@@ -350,6 +352,9 @@ const Home: React.FC = () => {
                                                 (K5: {results[activeTab]?.data?.k5_count}, K3,3: {results[activeTab]?.data?.k33_count})
                                             </span>
                                         )}
+                                        <div style={{ fontSize: '0.8em', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                                            Time: {results[activeTab]?.data?.execution_time?.toFixed(4)}s | Source: {results[activeTab]?.data?.result_source || 'Unknown'}
+                                        </div>
                                     </div>
                                     <button
                                         className="btn-secondary"
@@ -359,6 +364,16 @@ const Home: React.FC = () => {
                                             if (!data) return;
                                             // @ts-ignore
                                             const cert = data.certificate || { error: "Certificate not found" };
+                                            if (data.execution_time !== undefined) {
+                                                // @ts-ignore
+                                                cert.execution_time = data.execution_time;
+                                                // @ts-ignore
+                                                cert.execution_time_unit = "seconds";
+                                            }
+                                            if (data.result_source) {
+                                                // @ts-ignore
+                                                cert.result_source = data.result_source;
+                                            }
                                             const blob = new Blob([JSON.stringify(cert, null, 2)], { type: 'application/json' });
                                             const url = URL.createObjectURL(blob);
                                             const a = document.createElement('a');
