@@ -248,7 +248,7 @@ const Home: React.FC = () => {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Drug Discovery 💊
+                                Compound Analysis
                             </button>
                         </div>
                     </div>
