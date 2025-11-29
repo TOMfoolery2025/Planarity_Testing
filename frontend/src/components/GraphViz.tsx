@@ -239,7 +239,7 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
                         if (node.label && CPK_COLORS[node.label]) {
                             return CPK_COLORS[node.label];
                         }
-                        return "#f43f5e"; // Non-Planar Red
+                        return "#3b82f6"; // Blue (to contrast with red edges)
                     }}
                     nodeRelSize={6}
                     linkColor={(link: any) => link.is_conflict ? "#ef4444" : "#64748b"}
@@ -259,7 +259,10 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
 
                 <div className="viz-overlay-bottom-right">
                     <div className="legend-item">
-                        <span className="legend-dot bg-red"></span> Non-Planar (3D)
+                        <span className="legend-dot bg-blue"></span> Node
+                    </div>
+                    <div className="legend-item">
+                        <span className="legend-dot bg-red animate-pulse"></span> Conflict Edge
                     </div>
                     {initialNodes.some(n => n.label === 'O') && (
                         <div className="legend-item">
@@ -299,12 +302,11 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
 
             {/* Legend Overlay */}
             <div className="viz-overlay-bottom-right">
-                <div className="legend-item">
-                    <span className="legend-dot bg-emerald"></span> Node
-                </div>
-                <div className="legend-item">
-                    <span className="legend-dot bg-slate"></span> Edge
-                </div>
+                {initialNodes.some(n => n.label === 'C') && (
+                    <div className="legend-item">
+                        <span className="legend-dot" style={{ background: '#909090' }}></span> Carbon
+                    </div>
+                )}
                 {initialNodes.some(n => n.label === 'O') && (
                     <div className="legend-item">
                         <span className="legend-dot" style={{ background: '#FF0D0D' }}></span> Oxygen
