@@ -290,6 +290,27 @@ const Home: React.FC = () => {
                                             </span>
                                         )}
                                     </div>
+                                    <button
+                                        className="btn-secondary"
+                                        style={{ fontSize: '0.9rem', padding: '6px 12px' }}
+                                        onClick={() => {
+                                            const data = results[activeTab]?.data;
+                                            if (!data) return;
+                                            // @ts-ignore
+                                            const cert = data.certificate || { error: "Certificate not found" };
+                                            const blob = new Blob([JSON.stringify(cert, null, 2)], { type: 'application/json' });
+                                            const url = URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            a.download = `certificate_graph_${activeTab + 1}.json`;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                            URL.revokeObjectURL(url);
+                                        }}
+                                    >
+                                        Download Certificate 📜
+                                    </button>
                                 </div>
 
                                 <div className="result-content" style={{ padding: 0, border: 'none', background: 'transparent' }}>

@@ -17,9 +17,7 @@ const Navbar = () => {
                 <Link to="/docs" className={`nav-link ${isActive('/docs') ? 'active' : ''}`}>Docs</Link>
                 <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`}>About</Link>
             </div>
-            <div className="navbar-actions">
-                <button className="btn-connect">Connect Wallet</button>
-            </div>
+
         </nav>
     )
 }

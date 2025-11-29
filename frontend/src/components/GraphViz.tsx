@@ -208,8 +208,8 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
         };
     }, [initialNodes, initialEdges, isPlanar, dimensions]);
 
-    // --- 3D Render for Planar Graphs ---
-    if (isPlanar) {
+    // --- 3D Render for Non-Planar Graphs ---
+    if (!isPlanar) {
         // Prepare data for ForceGraph3D
         // Fix: Ensure fx/fy are undefined, not null, to satisfy ForceGraph3D types
         const graphData = {
@@ -233,7 +233,7 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
                         if (node.label && CPK_COLORS[node.label]) {
                             return CPK_COLORS[node.label];
                         }
-                        return "#10b981"; // Default Planar Green
+                        return "#f43f5e"; // Non-Planar Red
                     }}
                     nodeRelSize={6}
                     linkColor={() => "#64748b"}
@@ -244,7 +244,7 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
                 {/* 3D Overlay */}
                 <div className="viz-overlay-top-left">
                     <div className="viz-stat-badge">
-                        3D Mode
+                        3D Mode (Non-Planar)
                     </div>
                     <div className="viz-stat-badge">
                         Nodes: {initialNodes.length}
@@ -253,20 +253,24 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
 
                 <div className="viz-overlay-bottom-right">
                     <div className="legend-item">
-                        <span className="legend-dot bg-emerald"></span> Planar (3D)
+                        <span className="legend-dot bg-red"></span> Non-Planar (3D)
                     </div>
-                    <div className="legend-item">
-                        <span className="legend-dot" style={{ background: '#FF0D0D' }}></span> Oxygen
-                    </div>
-                    <div className="legend-item">
-                        <span className="legend-dot" style={{ background: '#3050F8' }}></span> Nitrogen
-                    </div>
+                    {initialNodes.some(n => n.label === 'O') && (
+                        <div className="legend-item">
+                            <span className="legend-dot" style={{ background: '#FF0D0D' }}></span> Oxygen
+                        </div>
+                    )}
+                    {initialNodes.some(n => n.label === 'N') && (
+                        <div className="legend-item">
+                            <span className="legend-dot" style={{ background: '#3050F8' }}></span> Nitrogen
+                        </div>
+                    )}
                 </div>
             </div>
         );
     }
 
-    // --- 2D Render for Non-Planar Graphs ---
+    // --- 2D Render for Planar Graphs ---
     return (
         <div ref={containerRef} className="viz-container">
             <svg ref={svgRef} className="cursor-move" style={{ width: '100%', height: '100%' }}></svg>
@@ -274,7 +278,7 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
             {/* Stats Overlay */}
             <div className="viz-overlay-top-left">
                 <div className="viz-stat-badge">
-                    2D Mode (Non-Planar)
+                    2D Mode (Planar)
                 </div>
                 <div className="viz-stat-badge">
                     Nodes: {initialNodes.length}
@@ -290,10 +294,10 @@ const GraphViz: React.FC<GraphVizProps> = ({ nodes: initialNodes, edges: initial
             {/* Legend Overlay */}
             <div className="viz-overlay-bottom-right">
                 <div className="legend-item">
-                    <span className="legend-dot bg-blue"></span> Node
+                    <span className="legend-dot bg-emerald"></span> Node
                 </div>
                 <div className="legend-item">
-                    <span className="legend-dot bg-red animate-pulse"></span> Conflict (Kuratowski)
+                    <span className="legend-dot bg-slate"></span> Edge
                 </div>
             </div>
         </div>

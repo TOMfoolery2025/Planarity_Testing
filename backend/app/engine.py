@@ -23,6 +23,22 @@ def analyze_graph(G: nx.Graph) -> dict:
             # But planar_layout should handle disconnected graphs by laying out components.
             pos = nx.spring_layout(G, seed=42)
 
+    # Serialize the certificate
+    certificate_data = {}
+    if is_planar:
+        # Planar Embedding: Rotation system (neighbors in clockwise order)
+        # certificate is a PlanarEmbedding object (inherits from DiGraph)
+        # We can represent it as a dict of lists
+        for node in certificate.nodes():
+            certificate_data[node] = list(certificate.neighbors(node))
+    else:
+        # Non-Planar: Kuratowski subgraph (counterexample)
+        # certificate is a Graph object
+        certificate_data = {
+            "type": "Kuratowski Subgraph",
+            "edges": list(certificate.edges())
+        }
+
     nodes = []
     for node in G.nodes():
         # pos[node] is a numpy array or list [x, y]
@@ -49,5 +65,6 @@ def analyze_graph(G: nx.Graph) -> dict:
     return {
         "is_planar": is_planar,
         "nodes": nodes,
-        "edges": edges
+        "edges": edges,
+        "certificate": certificate_data
     }
