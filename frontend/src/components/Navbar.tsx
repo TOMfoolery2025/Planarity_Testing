@@ -14,7 +14,7 @@ const Navbar = () => {
             <div className="navbar-links">
                 <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>Home</Link>
                 <Link to="/api" className={`nav-link ${isActive('/api') ? 'active' : ''}`}>API</Link>
-                <Link to="/drug-discovery" className={`nav-link ${isActive('/drug-discovery') ? 'active' : ''}`}>Drug Discovery</Link>
+                <Link to="/drug-discovery" className={`nav-link ${isActive('/drug-discovery') ? 'active' : ''}`}>Compound Analysis</Link>
                 <Link to="/docs" className={`nav-link ${isActive('/docs') ? 'active' : ''}`}>Docs</Link>
                 <Link to="/about" className={`nav-link ${isActive('/about') ? 'active' : ''}`}>About</Link>
             </div>

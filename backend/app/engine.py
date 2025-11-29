@@ -61,10 +61,56 @@ def analyze_graph(G: nx.Graph) -> dict:
             "target": v,
             "is_conflict": is_conflict
         })
+
+    # Calculate biconnected components count and extract subgraphs
+    biconnected_subgraphs = []
+    try:
+        components = list(nx.biconnected_components(G))
+        num_biconnected = len(components)
+        
+        for i, comp_nodes in enumerate(components):
+            # Create subgraph
+            subgraph = G.subgraph(comp_nodes).copy()
+            
+            # Serialize subgraph nodes (keep original positions)
+            sub_nodes = []
+            for node in subgraph.nodes():
+                x, y = pos[node]
+                label = str(G.nodes[node].get('label', node))
+                sub_nodes.append({
+                    "id": node,
+                    "x": float(x),
+                    "y": float(y),
+                    "label": label
+                })
+            
+            # Serialize subgraph edges
+            sub_edges = []
+            for u, v in subgraph.edges():
+                # Check conflict in context of original graph (though subgraph might be planar itself)
+                is_conflict = tuple(sorted((u, v))) in conflict_edges
+                sub_edges.append({
+                    "source": u,
+                    "target": v,
+                    "is_conflict": is_conflict
+                })
+                
+            biconnected_subgraphs.append({
+                "id": i,
+                "nodes": sub_nodes,
+                "edges": sub_edges
+            })
+            
+    except Exception as e:
+        print(f"Error calculating biconnected components: {e}")
+        num_biconnected = 0
+        biconnected_subgraphs = []
         
     return {
         "is_planar": is_planar,
         "nodes": nodes,
         "edges": edges,
-        "certificate": certificate_data
+        "certificate": certificate_data,
+        "biconnected_components": num_biconnected,
+        "biconnected_subgraphs": biconnected_subgraphs
     }
