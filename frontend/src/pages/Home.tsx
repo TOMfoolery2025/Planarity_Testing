@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import GraphViz from '../components/GraphViz';
+import FileUploader from '../components/FileUploader';
 
 interface Result {
     status: 'success' | 'error'
@@ -212,6 +213,66 @@ const Home: React.FC = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2 style={{ margin: 0 }}>Input Graphs</h2>
                         <button className="btn-secondary" onClick={addInputCard} title="Add new graph">+</button>
+                    </div>
+
+                    <div style={{ marginBottom: '20px' }}>
+                        <FileUploader onFilesLoaded={(files: { name: string; content: string }[]) => {
+                            const newInputs: string[] = [];
+                            files.forEach(file => {
+                                try {
+                                    const parsed = JSON.parse(file.content);
+                                    if (Array.isArray(parsed)) {
+                                        // Array of graphs
+                                        parsed.forEach(item => {
+                                            if (typeof item === 'string') newInputs.push(item);
+                                            else if (typeof item === 'object' && item.edges) {
+                                                // Handle object with edges property
+                                                if (Array.isArray(item.edges)) {
+                                                    // Convert edge list array to string
+                                                    const edgeString = item.edges.map((e: any) => {
+                                                        if (Array.isArray(e)) return `${e[0]} ${e[1]}`;
+                                                        if (typeof e === 'object') return `${e.source} ${e.target}`;
+                                                        return String(e);
+                                                    }).join('\n');
+                                                    newInputs.push(edgeString);
+                                                }
+                                            }
+                                        });
+                                    } else if (typeof parsed === 'object' && parsed.edges) {
+                                        // Single graph object
+                                        if (Array.isArray(parsed.edges)) {
+                                            const edgeString = parsed.edges.map((e: any) => {
+                                                if (Array.isArray(e)) return `${e[0]} ${e[1]}`;
+                                                if (typeof e === 'object') return `${e.source} ${e.target}`;
+                                                return String(e);
+                                            }).join('\n');
+                                            newInputs.push(edgeString);
+                                        }
+                                    }
+                                } catch (e) {
+                                    // Not JSON, treat as raw text
+                                    if (file.content.trim()) {
+                                        newInputs.push(file.content);
+                                    }
+                                }
+                            });
+
+                            if (newInputs.length > 0) {
+                                setInputs(prev => {
+                                    // Filter out empty initial input if it exists
+                                    const filteredPrev = prev.length === 1 && !prev[0].trim() ? [] : prev;
+                                    return [...filteredPrev, ...newInputs];
+                                });
+                                setResults(prev => {
+                                    const filteredPrev = prev.length === 1 && !inputs[0].trim() ? [] : prev;
+                                    return [...filteredPrev, ...new Array(newInputs.length).fill(null)];
+                                });
+                                setActiveTab(prev => {
+                                    const filteredPrevLen = inputs.length === 1 && !inputs[0].trim() ? 0 : inputs.length;
+                                    return filteredPrevLen; // Switch to first new tab
+                                });
+                            }
+                        }} />
                     </div>
 
                     <div className="tabs">

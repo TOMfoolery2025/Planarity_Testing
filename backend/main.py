@@ -126,22 +126,31 @@ async def process_batch(inputs: List[str] = Body(...)):
 from app.drug_discovery import analyze_molecule, generate_llm_response
 from pydantic import BaseModel
 
+from typing import Union
+
 class DrugDiscoveryRequest(BaseModel):
-    smiles: str = None
+    smiles: Union[str, List[str]] = None
     message: str
 
 @app.post("/drug-discovery/chat")
 async def drug_discovery_chat(request: DrugDiscoveryRequest):
     """
-    Analyzes a molecule and provides an LLM response.
+    Analyzes a molecule (or list of molecules) and provides an LLM response.
     Handles high concurrency by offloading CPU tasks to executor.
     """
     loop = asyncio.get_running_loop()
     
     analysis = None
-    if request.smiles and request.smiles.strip():
-        # 1. Analyze molecule (CPU bound) -> Offload to ProcessPoolExecutor
-        analysis = await loop.run_in_executor(executor, analyze_molecule, request.smiles)
+    if request.smiles:
+        if isinstance(request.smiles, str) and request.smiles.strip():
+            # Single SMILES
+            analysis = await loop.run_in_executor(executor, analyze_molecule, request.smiles)
+        elif isinstance(request.smiles, list) and len(request.smiles) > 0:
+            # Batch SMILES
+            # Run all analyses in parallel
+            tasks = [loop.run_in_executor(executor, analyze_molecule, s) for s in request.smiles if s.strip()]
+            if tasks:
+                analysis = await asyncio.gather(*tasks)
     
     # 2. Generate LLM response (I/O bound) -> Async await
     llm_response = await generate_llm_response(analysis, request.message)

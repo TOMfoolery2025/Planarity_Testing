@@ -1,6 +1,6 @@
 import logging
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union, List
 from concurrent.futures import Executor
 import asyncio
 
@@ -119,7 +119,7 @@ def get_atom_color(symbol: str) -> str:
     }
     return colors.get(symbol, "#FF00FF") # Default Magenta
 
-async def generate_llm_response(analysis: Optional[Dict[str, Any]], user_query: str) -> str:
+async def generate_llm_response(analysis: Union[Optional[Dict[str, Any]], List[Dict[str, Any]]], user_query: str) -> str:
     """
     Generates a response using Google Gemini based on the analysis and user query.
     """
@@ -135,6 +135,7 @@ async def generate_llm_response(analysis: Optional[Dict[str, Any]], user_query: 
             "Guidelines:\n"
             "- Be scientific, precise, and professional.\n"
             "- If a molecule is analyzed, interpret its properties (MW, LogP, Lipinski rules) in the context of drug-likeness.\n"
+            "- If multiple molecules are provided, COMPARE them. Highlight the best candidates based on drug-likeness and the user's query.\n"
             "- Highlight potential risks (e.g., toxicity, poor solubility) or benefits.\n"
             "- If no molecule is provided, answer general chemistry questions or ask for a SMILES string.\n"
             "- Keep responses concise and actionable."
@@ -142,19 +143,37 @@ async def generate_llm_response(analysis: Optional[Dict[str, Any]], user_query: 
 
         prompt_parts = [system_prompt]
 
-        if analysis and analysis.get("valid"):
-            props = analysis['properties']
-            lip = analysis['lipinski']
-            context = (
-                f"Current Molecule Analysis (SMILES: {analysis['smiles']}):\n"
-                f"- Molecular Weight: {props['molecular_weight']} g/mol\n"
-                f"- LogP: {props['logp']}\n"
-                f"- H-Bond Donors: {props['hbd']}\n"
-                f"- H-Bond Acceptors: {props['hba']}\n"
-                f"- TPSA: {props['tpsa']}\n"
-                f"- Lipinski Rule of 5: {'Passes' if lip['passes'] else 'Fails'} ({lip['violations']} violations)\n"
-            )
-            prompt_parts.append(f"Context:\n{context}\n\nUser Query: {user_query}")
+        if analysis:
+            if isinstance(analysis, list):
+                # Batch Analysis Context
+                context = "Batch Analysis of Molecules:\n"
+                for i, res in enumerate(analysis):
+                    if res.get("valid"):
+                        props = res['properties']
+                        lip = res['lipinski']
+                        context += (
+                            f"\nMolecule {i+1} (SMILES: {res['smiles']}):\n"
+                            f"- MW: {props['molecular_weight']}, LogP: {props['logp']}, "
+                            f"HBD: {props['hbd']}, HBA: {props['hba']}, TPSA: {props['tpsa']}\n"
+                            f"- Lipinski: {'Pass' if lip['passes'] else 'Fail'} ({lip['violations']} violations)\n"
+                        )
+                    else:
+                        context += f"\nMolecule {i+1} (SMILES: {res.get('smiles', 'Unknown')}): Invalid or Error ({res.get('error')})\n"
+                prompt_parts.append(f"Context:\n{context}\n\nUser Query: {user_query}")
+            elif isinstance(analysis, dict) and analysis.get("valid"):
+                # Single Molecule Context
+                props = analysis['properties']
+                lip = analysis['lipinski']
+                context = (
+                    f"Current Molecule Analysis (SMILES: {analysis['smiles']}):\n"
+                    f"- Molecular Weight: {props['molecular_weight']} g/mol\n"
+                    f"- LogP: {props['logp']}\n"
+                    f"- H-Bond Donors: {props['hbd']}\n"
+                    f"- H-Bond Acceptors: {props['hba']}\n"
+                    f"- TPSA: {props['tpsa']}\n"
+                    f"- Lipinski Rule of 5: {'Passes' if lip['passes'] else 'Fails'} ({lip['violations']} violations)\n"
+                )
+                prompt_parts.append(f"Context:\n{context}\n\nUser Query: {user_query}")
         else:
             prompt_parts.append(f"User Query: {user_query}")
 

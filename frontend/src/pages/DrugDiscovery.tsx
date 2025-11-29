@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MoleculeViewer from '../components/MoleculeViewer';
+import FileUploader from '../components/FileUploader';
 import './DrugDiscovery.css'; // We'll create this for specific styles
 
 interface AnalysisResult {
@@ -28,7 +29,7 @@ interface AnalysisResult {
 interface Message {
     role: 'user' | 'assistant';
     content: string;
-    analysis?: AnalysisResult;
+    analysis?: AnalysisResult | AnalysisResult[];
 }
 
 const DrugDiscovery: React.FC = () => {
@@ -52,7 +53,17 @@ const DrugDiscovery: React.FC = () => {
         if (!input.trim()) return;
 
         const userMessage = input;
-        const currentSmiles = smilesInput;
+        let currentSmiles: string | string[] = smilesInput;
+
+        // Try to parse as JSON array
+        try {
+            const parsed = JSON.parse(smilesInput);
+            if (Array.isArray(parsed)) {
+                currentSmiles = parsed;
+            }
+        } catch (e) {
+            // Not JSON, treat as single string
+        }
 
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setInput('');
@@ -67,14 +78,21 @@ const DrugDiscovery: React.FC = () => {
 
             const data = await response.json();
 
-            if (data.analysis && data.analysis.valid) {
+            // Handle Batch Analysis
+            if (Array.isArray(data.analysis)) {
+                // If batch, set the first valid one as current for 3D view, or just null
+                const firstValid = data.analysis.find((a: any) => a.valid);
+                if (firstValid) {
+                    setCurrentAnalysis(firstValid);
+                }
+            } else if (data.analysis && data.analysis.valid) {
                 setCurrentAnalysis(data.analysis);
             }
 
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: data.response,
-                analysis: data.analysis
+                analysis: data.analysis // Can be object or array
             }]);
         } catch (error) {
             console.error("Error:", error);
@@ -109,18 +127,42 @@ const DrugDiscovery: React.FC = () => {
                 <p>AI-Powered Molecular Analysis</p>
 
                 <div className="input-group">
-                    <label>Target Molecule (SMILES)</label>
-                    <input
-                        type="text"
+                    <label>Target Molecule(s) (SMILES)</label>
+                    <FileUploader onFilesLoaded={(files: { name: string; content: string }[]) => {
+                        const allSmiles: string[] = [];
+                        files.forEach(file => {
+                            try {
+                                const parsed = JSON.parse(file.content);
+                                if (Array.isArray(parsed)) {
+                                    allSmiles.push(...parsed);
+                                } else if (typeof parsed === 'object' && parsed.smiles) {
+                                    // Handle object with smiles property if needed, but simple array is priority
+                                    if (Array.isArray(parsed.smiles)) {
+                                        allSmiles.push(...parsed.smiles);
+                                    } else {
+                                        allSmiles.push(parsed.smiles);
+                                    }
+                                }
+                            } catch (e) {
+                                // If not JSON, maybe it's a raw text list?
+                                // For now, let's assume JSON array as requested
+                            }
+                        });
+                        if (allSmiles.length > 0) {
+                            setSmilesInput(JSON.stringify(allSmiles, null, 2));
+                        }
+                    }} />
+                    <textarea
                         value={smilesInput}
                         onChange={(e) => setSmilesInput(e.target.value)}
-                        placeholder="e.g. CC(=O)OC1=CC=CC=C1C(=O)O"
+                        placeholder="e.g. CC(=O)OC1=CC=CC=C1C(=O)O or JSON array"
+                        style={{ height: '100px', width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', borderRadius: '4px', padding: '8px', marginTop: '10px' }}
                     />
                 </div>
 
                 {currentAnalysis && currentAnalysis.structure_3d && (
                     <div className="molecule-viewer-container">
-                        <h3>3D Structure</h3>
+                        <h3>3D Structure: {currentAnalysis.smiles.slice(0, 15)}...</h3>
                         <MoleculeViewer data={currentAnalysis.structure_3d} />
                     </div>
                 )}
@@ -130,7 +172,7 @@ const DrugDiscovery: React.FC = () => {
                     <ul>
                         <li onClick={() => setSmilesInput("CC(=O)OC1=CC=CC=C1C(=O)O")}>Aspirin</li>
                         <li onClick={() => setSmilesInput("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")}>Caffeine</li>
-                        <li onClick={() => setSmilesInput("C1CCCCC1")}>Cyclohexane</li>
+                        <li onClick={() => setSmilesInput('["C1CCCCC1", "c1ccccc1"]')}>Batch Example</li>
                     </ul>
                 </div>
 
@@ -150,25 +192,49 @@ const DrugDiscovery: React.FC = () => {
                                 className={`message ${msg.role}`}
                             >
                                 <div className="bubble">
-                                    {msg.content}
+                                    <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
                                 </div>
-                                {msg.analysis && msg.analysis.valid && (
+                                {msg.analysis && (
                                     <motion.div
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         className="analysis-card"
                                     >
                                         <h4>Analysis Results</h4>
-                                        <div className="props-grid">
-                                            <div><span>MW:</span> {msg.analysis.properties?.molecular_weight}</div>
-                                            <div><span>LogP:</span> {msg.analysis.properties?.logp}</div>
-                                            <div><span>HBD:</span> {msg.analysis.properties?.hbd}</div>
-                                            <div><span>HBA:</span> {msg.analysis.properties?.hba}</div>
-                                            <div><span>TPSA:</span> {msg.analysis.properties?.tpsa}</div>
-                                        </div>
-                                        <div className={`lipinski ${msg.analysis.lipinski?.passes ? 'pass' : 'fail'}`}>
-                                            Lipinski Rule: {msg.analysis.lipinski?.passes ? 'PASS' : 'FAIL'}
-                                        </div>
+                                        {Array.isArray(msg.analysis) ? (
+                                            <div className="batch-results">
+                                                {msg.analysis.map((res: any, i: number) => (
+                                                    <div key={i} className="batch-item" onClick={() => res.valid && setCurrentAnalysis(res)} style={{ cursor: res.valid ? 'pointer' : 'default', padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: currentAnalysis === res ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
+                                                        <strong>#{i + 1}</strong> {res.smiles.slice(0, 20)}...
+                                                        {res.valid ? (
+                                                            <div style={{ fontSize: '0.8em', color: '#aaa' }}>
+                                                                MW: {res.properties.molecular_weight} | LogP: {res.properties.logp} |
+                                                                <span style={{ color: res.lipinski.passes ? '#4caf50' : '#f44336', marginLeft: '5px' }}>
+                                                                    {res.lipinski.passes ? 'Pass' : 'Fail'}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <div style={{ color: '#f44336' }}>Invalid</div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            msg.analysis.valid && (
+                                                <>
+                                                    <div className="props-grid">
+                                                        <div><span>MW:</span> {msg.analysis.properties?.molecular_weight}</div>
+                                                        <div><span>LogP:</span> {msg.analysis.properties?.logp}</div>
+                                                        <div><span>HBD:</span> {msg.analysis.properties?.hbd}</div>
+                                                        <div><span>HBA:</span> {msg.analysis.properties?.hba}</div>
+                                                        <div><span>TPSA:</span> {msg.analysis.properties?.tpsa}</div>
+                                                    </div>
+                                                    <div className={`lipinski ${msg.analysis.lipinski?.passes ? 'pass' : 'fail'}`}>
+                                                        Lipinski Rule: {msg.analysis.lipinski?.passes ? 'PASS' : 'FAIL'}
+                                                    </div>
+                                                </>
+                                            )
+                                        )}
                                     </motion.div>
                                 )}
                             </motion.div>
@@ -183,7 +249,7 @@ const DrugDiscovery: React.FC = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask about the molecule..."
+                        placeholder="Ask about the molecule(s)..."
                         disabled={loading}
                     />
                     <button type="submit" disabled={loading || !input}>Send</button>
